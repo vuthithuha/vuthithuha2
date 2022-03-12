@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>STDIO Training</title>
+        <style>
+            button {
+                width: 100px;
+                height: 40px;
+                color: #fff;
+                background-color: #000;
+                border: none;
+                border-radius: 20px;
+                position: absolute;
+                top: 80px;
+                left: 120px;
+            }
+
+            button.yes {
+                background-color: #f60;
+                left: 10px;
+            }
+        </style>
+        <script>
+            function getRectById(id) {
+                let element = document.getElementById(id);
+
+                let rect = {
+                    x: 0,
+                    y: 0,
+                    w: element.offsetWidth,
+                    h: element.offsetHeight
+                }
+
+                while (element) {
+                    if (element.tagName == "BODY") {
+                        const xScroll = element.scrollLeft || document.documentElement.scrollLeft;
+                        const yScroll = element.scrollTop || document.documentElement.scrollTop;
+
+                        rect.x += (element.offsetLeft - xScroll + element.clientLeft);
+                        rect.y += (element.offsetTop - yScroll + element.clientTop);
+                    } else {
+                        rect.x += (element.offsetLeft - element.scrollLeft + element.clientLeft);
+                        rect.y += (element.offsetTop - element.scrollTop + element.clientTop);
+                    }
+                
+                    element = element.offsetParent;
+                }
+                return rect;
+            }
+
+            function onload() {
+                document.getElementById("button").onmouseover = (event) => {
+                    if (sessionStorage.getItem("moving") === true)
+                        return;
+
+                    sessionStorage.setItem("moving", true);
+
+                    const mouseX = event.clientX;
+                    const mouseY = event.clientY;
+
+                    let rect = getRectById("button");
+
+                    let orientX = Math.abs(mouseX - rect.x) < Math.abs(mouseX - (rect.x + rect.w)) ? 1 : -1;
+                    let orientY = Math.abs(mouseY - rect.y) < Math.abs(mouseY - (rect.y + rect.h)) ? 1 : -1;
+
+                    count = 0;
+                    const interval = setInterval(() => {
+                        let rect = getRectById("button");
+                        let button = document.getElementById("button");
+
+                        button.style.top = rect.y + orientY * 10 + "px";
+                        button.style.left = rect.x + orientX * 10 + "px";
+
+                        count++;
+
+                        if (count >= 6) {
+                            clearInterval(interval);
+                            sessionStorage.setItem("moving", false);
+                        }
+                    }, 1000 / 60)
+                }
+            }
+        </script>
+    </head>
+    <body onload="onload()">
+        <h1>Bạn thích làm web không?</h1>
+        <button class="yes" onclick="alert('Lập trình web rất thú vị!')">Có</button>
+        <button id="button">Không</button>
+    </body>
+</html>
